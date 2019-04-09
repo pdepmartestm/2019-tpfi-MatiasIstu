@@ -4,6 +4,7 @@ type Tesoro = (String,Int)
 data Pirata = Pirata {nombre::String,botin::[Tesoro],nombreTesoro::String} deriving(Show)
 data Barco = Barco {maneraDeSaquear::Criterio,tripulacion::[Pirata]}deriving(Show)
 --1
+[((nombre1,precio1),(nombre2,precio2))]
 
 cantidadDeTesoros :: Pirata -> Int
 cantidadDeTesoros  = lenght.botin
@@ -11,9 +12,12 @@ cantidadDeTesoros  = lenght.botin
 esAfortunado :: Pirata->Bool
 esAfortunado pirata = (>10000).sum.map snd (botin pirata)
 
---tienenMismoObjetoConDiferenteValor :: Pirata->Pirata->Bool
---tienenMismoObjetoConDiferenteValor pirata1 pirata2 =
+tienenMismoObjetoConDiferenteValor :: Pirata->Pirata->Bool
+tienenMismoObjetoConDiferenteValor pirata1 pirata2 = filter(igualnombredistintovalor).zip (botin pirata1) (botin pirata2)
 
+igualnombredistintovalor tupla1 tupla2 = (fst.fst) tupla1 == (fst.snd) tupla2 && (snd.fst) tupla1 /= (snd.snd) tupla2
+
+--[((nombre1,precio1),(nombre2,precio2))]
 
 elTesoroMasValioso:: Pirata->Int
 elTesoroMasValioso pirata = maximum (map snd (botin pirata))
@@ -47,15 +51,15 @@ anneBonny = pirata anneBonny [(doblones,100),(frascoDeArena,1)]
 --Formas de saqueo
 
 soloTesorosValiosos pirata tesoro | esValioso(tesoro) = adquirirTesoro pirata tesoro
- | otherwise = id
+                                  | otherwise = id
 
 tesorosConNombreEspecifico pirata tesoro | tieneDeNombre (nombreTesoro pirata) tesoro = adquirirTesoro pirata tesoro
-| otherwise = id
+                                         | otherwise = id
 
 tieneCorazon pirata tesoro = id
 
 cumpleAlguna | soloTesorosValiosos || tesorosConNombreEspecifico = adquirirTesoro pirata tesoros
-| otherwise = id
+             | otherwise = id
 
 --Saquear
 saquear formaDeSaqueo tesoro pirata = formaDeSaqueo pirata tesoro
