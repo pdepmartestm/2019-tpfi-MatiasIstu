@@ -4,16 +4,16 @@ type Tesoro = (String,Int)
 data Pirata = Pirata {nombre::String,botin::[Tesoro],nombreTesoro::String} deriving(Show)
 data Barco = Barco {maneraDeSaquear::Criterio,tripulacion::[Pirata]}deriving(Show)
 --1
-[((nombre1,precio1),(nombre2,precio2))]
+
 
 cantidadDeTesoros :: Pirata -> Int
-cantidadDeTesoros  = lenght.botin
+cantidadDeTesoros  = length.botin
 
 esAfortunado :: Pirata->Bool
 esAfortunado pirata = (>10000).sum.map snd (botin pirata)
 
 tienenMismoObjetoConDiferenteValor :: Pirata->Pirata->Bool
-tienenMismoObjetoConDiferenteValor pirata1 pirata2 = filter(igualnombredistintovalor).zip (botin pirata1) (botin pirata2)
+tienenMismoObjetoConDiferenteValor pirata1 pirata2 = (>1).length.filter(igualnombredistintovalor).zip (botin pirata1) (botin pirata2)
 
 igualnombredistintovalor tupla1 tupla2 = (fst.fst) tupla1 == (fst.snd) tupla2 && (snd.fst) tupla1 /= (snd.snd) tupla2
 
@@ -76,13 +76,13 @@ anclarEnIsla barco tesoro = map (adquirirTesoro tesoro) (tripulacion barco)
 
 --Ataque
 
-atacarUnaCiudad barco tesoros | lenght tesoros > lenght (tripulacion barco) = agregarTesorosAPiratas barco tesoros
+atacarUnaCiudad barco tesoros | length tesoros > length (tripulacion barco) = agregarTesorosAPiratas barco tesoros
 | otherwise = (tirarPiratas tesoros).(agregarTesorosAPiratas barco) tesoros
 
 agregarTesorosAPiratas barco tesoros = zipWith (saqueo barco) (tripulacion barco) tesoros
 
 saqueo barco tupla = saquear(formaDeSaqueo barco) (fst tupla) (snd tupla)
 
-tirarPiratas barco tesoros = take (lenght tesoros) (barco tripulacion)
+tirarPiratas barco tesoros = take (length tesoros) (barco tripulacion)
 
 abordarOtroBarco barco = barco {tripulacion = []}
