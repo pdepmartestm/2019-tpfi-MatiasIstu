@@ -1,8 +1,8 @@
 --estructuras
---type Criterio = (Pirata->Tesoro->Pirata)
+type Criterio = Pirata->Tesoro->Pirata
 type Tesoro = (String,Int)
 data Pirata = Pirata {nombre::String,botin::[Tesoro]} deriving(Show)
-data Barco = Barco {tripulacion::[Pirata]}deriving(Show)
+data Barco = Barco {formaDeSaqueo::Criterio,tripulacion::[Pirata]}
 --1
 --maneraDeSaquear::Criterio--
 
@@ -18,7 +18,7 @@ tienenMismoObjetoConDiferenteValor pirata1 pirata2 = (>1).length.(filter(igualNo
 
 igualNombreDistintoValor (tupla1,tupla2) = (fst tupla1) ==(fst tupla2) && snd tupla1 /= (snd tupla2)
 
---[((nombre1,precio1),(nombre2,precio2))]
+
 
 elTesoroMasValioso:: Pirata->Int
 elTesoroMasValioso pirata = maximum (map snd (botin pirata))
@@ -50,22 +50,11 @@ anneBonny = Pirata "anneBonny" [("doblones",100),("frascoDeArena",1)]
 --2
 
 --Formas de saqueo
-
---soloTesorosValiosos pirata tesoro
--- | esValioso(tesoro) = adquirirTesoro pirata tesoro
--- | otherwise = id
-
---tesorosConNombreEspecifico pirata tesoro
--- | tieneDeNombre (nombreTesoro pirata) tesoro = adquirirTesoro pirata tesoro
--- | otherwise = id
-
-tieneCorazon pirata tesoro = id
-
---cumpleAlguna pirata tesoro
--- | soloTesorosValiosos || tesorosConNombreEspecifico = adquirirTesoro pirata tesoros
--- |otherwise = id
+soloTesorosValiosos :: Pirata->Tesoro->Pirata
+soloTesorosValiosos pirata  tesoro  | esValioso(tesoro) = adquirirTesoro pirata tesoro | otherwise = pirata
 
 --Saquear
+saquear :: (Pirata->Tesoro->Pirata) ->Tesoro->Pirata->Pirata
 saquear formaDeSaqueo tesoro pirata = formaDeSaqueo pirata tesoro
 
 --3
@@ -75,20 +64,24 @@ incorporarPirata :: Barco->Pirata ->Barco
 incorporarPirata barco pirata = barco {tripulacion = tripulacion barco ++ [pirata]}
 
 sacarPirata :: Barco->Pirata ->Barco
-sacarPirata barco pirata = barco {tripulacion = filter(noSellama pirata) (tripulacion barco)}
+sacarPirata barco pirata = barco {tripulacion = filter(not.seLlama pirata) (tripulacion barco)}
 
-anclarEnIsla barco tesoro = map (adquirirTesoro tesoro) (tripulacion barco)
+anclarEnIsla barco tesoro = map (flip adquirirTesoro tesoro) (tripulacion barco)
 
 --Ataque
 
---atacarUnaCiudad barco tesoros
--- | length tesoros > length (tripulacion barco) = agregarTesorosAPiratas barco tesoros
--- | otherwise = (tirarPiratas tesoros).(agregarTesorosAPiratas barco) tesoros
+atacarUnaCiudad barco tesoros | length tesoros > length (tripulacion barco) = agregarTesorosAPiratas barco tesoros
+                              | otherwise = take (length tesoros).(agregarTesorosAPiratas barco) $ tesoros
 
-agregarTesorosAPiratas barco tesoros = zipWith (saqueo barco) (tripulacion barco) tesoros
+agregarTesorosAPiratas :: Barco->[Tesoro]->[Pirata]
+agregarTesorosAPiratas barco tesoros = map (saqueo barco) (zip (tripulacion barco) tesoros)
 
-saqueo barco tupla = saquear(formaDeSaqueo barco) (fst tupla) (snd tupla)
 
-tirarPiratas barco tesoros = take (length tesoros) (barco tripulacion)
+--[(pirata,tesoro),(pirata,tesoro),(pirata,tesoro)]
+
+saqueo :: Barco->(Pirata,Tesoro)-> Pirata
+saqueo barco tupla = saquear(formaDeSaqueo barco) (snd tupla) (fst tupla)
+
+tirarPiratas piratas tesoros = take (length tesoros) piratas
 
 abordarOtroBarco barco = barco {tripulacion = []}
